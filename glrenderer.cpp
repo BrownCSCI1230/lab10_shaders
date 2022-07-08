@@ -73,7 +73,10 @@ void GLRenderer::initializeGL()
     initializeOpenGLFunctions();
 
     // Set Clear Color to black
-    glClearColor(0,0,0.1,1);
+    glClearColor(0,0,0,1);
+
+    // Enable Depth Testing
+    glEnable(GL_DEPTH_TEST);
 
     m_shader = ResourceLoader::createShaderProgram("Resources/Shaders/default.vert", "Resources/Shaders/default.frag"); //Shader setup (DO NOT EDIT)
 
@@ -95,6 +98,7 @@ void GLRenderer::initializeGL()
 
 void GLRenderer::paintGL()
 {
+    // Clear screen color and depth before painting
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUseProgram(m_shader);
@@ -103,6 +107,10 @@ void GLRenderer::paintGL()
     auto modelLoc = glGetUniformLocation(m_shader, "modelMatrix");
     auto viewLoc  = glGetUniformLocation(m_shader, "viewMatrix");
     auto projLoc  = glGetUniformLocation(m_shader, "projMatrix");
+
+    glUniform4f(glGetUniformLocation(m_shader, "light.position"),10,10,10,1);
+    glUniform3f(glGetUniformLocation(m_shader, "light.color"),1,1,1);
+
 
     glUniformMatrix4fv(modelLoc,1,GL_FALSE,&m_model[0][0]);
     glUniformMatrix4fv(viewLoc,1,GL_FALSE,&m_view[0][0]);

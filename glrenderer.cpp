@@ -4,11 +4,14 @@
 #include "CS1230Lib/resourceloader.h"
 #include "glm.hpp"
 #include "glm/gtc/constants.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 GLRenderer::GLRenderer(QWidget *parent)
     : QOpenGLWidget(parent)
 {
-
+    m_model = glm::mat4(1);
+    m_view = glm::lookAt(glm::vec3(10,0,2),glm::vec3(0,0,0),glm::vec3(0,0,1));
+    m_proj = glm::perspective(45.0,1.0 * width() / height(),0.01,100.0);
 }
 
 GLRenderer::~GLRenderer()
@@ -48,8 +51,6 @@ std::vector<float> generateSphereData(int phiTesselations, int thetaTesselations
             glm::vec4 p3 = sphericalToCartesian(phi2,the2);
             glm::vec4 p4 = sphericalToCartesian(phi1,the2);
 
-            std::cout << iTheta << iPhi <<std::endl;
-
             pushVec3(p1,&data);
             pushVec3(p2,&data);
             pushVec3(p3,&data);
@@ -59,8 +60,6 @@ std::vector<float> generateSphereData(int phiTesselations, int thetaTesselations
             pushVec3(p4,&data);
         }
     }
-
-    std::cout << data.size() <<std::endl;
 
     return data;
 }
@@ -81,7 +80,7 @@ void GLRenderer::initializeGL()
     glGenBuffers(1, &m_sphere_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, m_sphere_vbo);
 
-    m_sphereData = generateSphereData(5,3);
+    m_sphereData = generateSphereData(10,20);
 
     glBufferData(GL_ARRAY_BUFFER,m_sphereData.size() * sizeof(GLfloat),m_sphereData.data(), GL_STATIC_DRAW);
 
@@ -101,7 +100,13 @@ void GLRenderer::paintGL()
     glUseProgram(m_shader);
     glBindVertexArray(m_sphere_vao);
 
+    auto modelLoc = glGetUniformLocation(m_shader, "modelMatrix");
+    auto viewLoc  = glGetUniformLocation(m_shader, "viewMatrix");
+    auto projLoc  = glGetUniformLocation(m_shader, "projMatrix");
 
+    glUniformMatrix4fv(modelLoc,1,GL_FALSE,&m_model[0][0]);
+    glUniformMatrix4fv(viewLoc,1,GL_FALSE,&m_view[0][0]);
+    glUniformMatrix4fv(projLoc,1,GL_FALSE,&m_proj[0][0]);
 
     glDrawArrays(GL_TRIANGLES, 0, m_sphereData.size() / 3);
     glBindVertexArray(0);

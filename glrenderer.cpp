@@ -78,8 +78,12 @@ void GLRenderer::initializeGL()
     // Enable Depth Testing
     glEnable(GL_DEPTH_TEST);
 
+
+    //TASK
     m_shader = ResourceLoader::createShaderProgram("Resources/Shaders/default.vert", "Resources/Shaders/default.frag"); //Shader setup (DO NOT EDIT)
 
+
+    //vao vbo
     glGenBuffers(1, &m_sphere_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, m_sphere_vbo);
 
@@ -101,23 +105,29 @@ void GLRenderer::paintGL()
     // Clear screen color and depth before painting
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // TASK
     glUseProgram(m_shader);
+
     glBindVertexArray(m_sphere_vao);
 
+
+    //TASK
     auto modelLoc = glGetUniformLocation(m_shader, "modelMatrix");
     auto viewLoc  = glGetUniformLocation(m_shader, "viewMatrix");
     auto projLoc  = glGetUniformLocation(m_shader, "projMatrix");
-
+    //TASK
     glUniform4f(glGetUniformLocation(m_shader, "light.position"),10,10,10,1);
     glUniform3f(glGetUniformLocation(m_shader, "light.color"),1,1,1);
 
-
+    //TASK
     glUniformMatrix4fv(modelLoc,1,GL_FALSE,&m_model[0][0]);
     glUniformMatrix4fv(viewLoc,1,GL_FALSE,&m_view[0][0]);
     glUniformMatrix4fv(projLoc,1,GL_FALSE,&m_proj[0][0]);
 
     glDrawArrays(GL_TRIANGLES, 0, m_sphereData.size() / 3);
     glBindVertexArray(0);
+
+    //TASK
     glUseProgram(0);
 }
 

@@ -2,13 +2,15 @@
 
 Welcome to the Shader Lab! You just finished the VAO/VBO lab which focused on sending vertex data to the GPU in the form of attributes, now it's time to learn how to use that data to actually render images!
 
-A shader is just a program that gets run on the GPU. This could handle anything from camera coordinate conversion and perspective transformation to computing the phong illumination model or even implementing a post processing blur effect! They are super powerful and general tools!
+A shader is just a program that gets run on the GPU.
+
+This could handle anything from camera coordinate conversion and perspective transformation to computing the phong illumination model or even implementing a post processing blur effect! They are super powerful and general tools!
 
 This lab will teach you the basics of shaders. This includes…
-Handling input and output to and from shaders.
-The differences between Vertex and Fragment shaders.
-How to write a shader in GLSL.
-How to compile and use a shader once it's written.
+- Handling input and output to and from shaders.
+- The differences between Vertex and Fragment shaders.
+- How to write a shader in GLSL.
+- How to compile and use a shader once it's written.
 
 Let's get Started!
 
@@ -28,18 +30,46 @@ To connect this to your experience so far, this means the Vertex Shader acts dir
 
 The Fragment Shader receives input from the Vertex Shader and deals with the final computation of the displayed color for every pixel in the image. This is where the majority of fancy realtime effects get implemented.
 
-You can think of a fragment as the collection of information needed to color an individual pixel in the output image.
+A fragment is the per-pixel collection of information needed to produce the final color. Remember back to the lab05_light where you had a 2D array of intersection data and used that to produce a color? That was the basically the same thing as a fragment shader!
  
 ## 2. Implementation
 ### 2.1. GLSL
-We will use the Graphics Library Shading Language to write shaders. GLSL’s syntax is very similar to C/C++, and it’s based on OpenGL. [hard to debug, we recommend visually debug?? section on debugging?] A GLSL program is a collection of shaders that instructs OpenGL how to draw geometry. [we might not need to mention the following sentence, although we should mention how GLSL fits in the overall pipeline in this lab. Since the GPU only runs one program at a time, we need to specify which program to use prior to drawing shapes.] 
+We will use the Graphics Library Shading Language (GLSL for short) to write shaders. GLSL’s syntax is very similar to C/C++, and is the primary shading language for OpenGL.  A GLSL program is a collection of individual shaders that instructs OpenGL how to draw geometry. 
+
+[we might not need to mention the following sentence, although we should mention how GLSL fits in the overall pipeline in this lab. Since the GPU only runs one program at a time, we need to specify which program to use prior to drawing shapes.] 
+
+[hard to debug, we recommend visually debug?? section on debugging?]
+
 Common GLSL data types include:
-float, int
-vec2, vec3, vec4
-mat2, mat3, mat4
-TODO
-### 2.2. Using the ResourceLoader
-TODO
+- `float, int, bool`
+- `vec2, vec3, vec4`
+- `mat2, mat3, mat4`
+
+Also supported are:
+- arrays using `[]` syntax like C
+- structs!
+
+You can write functions.
+```
+returnType functionName(argType argName, ... etc.) {
+
+}
+```
+
+You can use predefined functions. This includes...
+- `sin`, `cos`, `tan`, etc...
+- `pow`, `exp`, `log`, etc...
+- `cross`, `dot`, `inverse`, `transpose`, etc...
+
+[A full list from the official reference card](https://www.khronos.org/files/opengl45-quick-reference-card.pdf#page=11)
+
+though its uhh, a bit much.
+
+### 2.2. Using the ShaderLoader
+
+To start off we are going to have you use our shader loader to load, link, and compile the vertex and fragment shader files.
+
+
 ### 2.3. Shader Input and Output
 As shaders are isolated onto the GPU, moving data between the main code file and the shader is not an intuitive process.
 There are 3 main ways to make data available for use within a shader.

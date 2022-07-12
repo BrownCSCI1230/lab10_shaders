@@ -18,7 +18,9 @@ Let's get Started!
 
 There are two main types of shaders you will be writing for this lab: Vertex and Fragment Shaders.
 
-(diagram of Real Time Pipeline from class)
+<p align="center">
+<img src="readmeImages/pipelineWhiteBackground.png"    style="width: 70%;">
+</p>
 
  ### 1.2. Vertex Shaders
 
@@ -33,6 +35,11 @@ The Fragment Shader receives input from the Vertex Shader and deals with the fin
 A fragment is the per-pixel collection of information needed to produce the final color. Remember back to the lab05_light where you had a 2D array of intersection data and used that to produce a color? That was the basically the same thing as a fragment shader!
  
 ## 2. Implementation
+
+### 2.0. Note On Stencil
+
+
+
 ### 2.1. GLSL
 We will use the Graphics Library Shading Language (GLSL for short) to write shaders. GLSL’s syntax is very similar to C/C++, and is the primary shading language for OpenGL.  A GLSL program is a collection of individual shaders that instructs OpenGL how to draw geometry. 
 
@@ -67,7 +74,11 @@ though its uhh, a bit much.
 
 ### 2.2. Using the ShaderLoader
 
-To start off we are going to have you use our shader loader to load, link, and compile the vertex and fragment shader files.
+To start off we are going to have you use our shader loader to load, compile, and link the vertex and fragment shader files.
+
+This process is fairly lengthy, simply look at the length of this file and we feel this does not provide you much interesting learning opportunities. For these reasons we have provided you with the ShaderLoader class which takes in the filepaths to the vertex and fragment shader, relative to the top-level project directory, and does all this compilation for you. The returned programID is used with other OpenGl functions to activate and deactive the shader for drawing.
+
+> Task 1: call createShaderProgram and set m_programID to the returned the value.
 
 
 ### 2.3. Shader Input and Output

@@ -88,7 +88,7 @@ There are 3 main ways to make data available for use within a shader.
 #### 2.3.1. Vertex attributes: the "location" keyword
 To read in data from a VAO all we need to do is specify outside of the main function using the following syntax…
 ```
-	layout(location = [index]) in [data_type] [variable_name];
+layout(location = [index]) in [data_type] [variable_name];
 ```
 - [data_type]: Can be any of the GLSL data types (float, vecX, etc) but should match the data specified in the VAO.
 - [variable_name]: The name this data is bound to within the shader.
@@ -100,12 +100,12 @@ To read in data from a VAO all we need to do is specify outside of the main func
  
 In GLSL, we specify data flow between shaders by manually creating input and output variables for each shader. As such, if we wish to pass data from the vertex shader to the fragment shader, we must specify an output variable for the vertex shader and an input variable for the fragment shader. To have OpenGL link the two, having the same variable name and data type is a necessity. The following syntax shows how these variables can be defined:
 ```
-	//Within the vertex shader
-	out [data_type] [variable_name];
+//Within the vertex shader
+out [data_type] [variable_name];
 ```
 ```
-	//Within the fragment shader
-	in [data_type] [variable_name];
+//Within the fragment shader
+in [data_type] [variable_name];
 ```
 After the declaration of these variables, we can treat them as we would any other member variable for the shader.
 
@@ -168,21 +168,30 @@ There is one type of shader output we have not discussed yet, they are called "p
 
 gl_Position is a vec4 that represents the vertex's output position in clip-space. 
 
-Task: Set gl_Position to the result of applying the MVP (model, view, projection) transformation to the vertex position.
+> Task: Set gl_Position to the result of applying the MVP (model, view, projection) transformation to the vertex position.
 
 ## 4.0 Fragment Shaders
-The fragment shader comes in the pipeline after rasterization occurs. The key word of fragment can be thought of as a potential pixel. It is used for per-fragment or per-pixel operations and is often used to determine the color of each pixel. 
+The fragment shader on the rasterized data. Because the data has been rasterized all the data has been *fragmented* from per-vertex data to per-pixel data. The fragment shader computes the final display color of a given pixel.
 
-### Setting an Output Color
-Unlike in the vertex shader, in modern OpenGL, there is no longer any default gl_FragColor output which is used to set the color of a fragment. However, if we manually define a single out variable that is a vec4 in the fragment shader, OpenGL will automatically assume this is meant to represent the fragment's color. If you wish to read more about this, refer to these two documents on ways to manually override the fragment shader output: 
-https://www.khronos.org/opengl/wiki/Layout_Qualifier_(GLSL) 
-https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBindFragDataLocation.xhtml 
-Task: Manually add a FragColor vec4 output to your fragment shader and set it to be a value of vec4(1.0) in the main function (you should see stuff on ur screen now, debug if you don't)
+### "Default" Outputs
+
+Because OpenGL is a consistent and well designed system, just like how there was a `gl_Position` output for the Vertex shader, there is a parallel `gl_FragColor` output defined for the fragment shader!...
+
+not...
+
+Instead, in modern OpenGL you need to manually define an arbitrary output vec4. This output is then detected by OpenGL and is assumed to be the final output pixel. While the variable name does not have any restrictions on it, we recommend you still name it gl_FragColor for readability. For the purposes of the lab this works fine, of course there is much more control and detail to this then presented.
+
+<details> <summary> More Info On Fragment Shader Outputs </summary> 
+https://www.khronos.org/opengl/wiki/Fragment_Shader#Outputs
+</details>
+
+> Task: Manually add a vec4 named gl_FragColor as an output to your fragment shader. For now set it to be a value of vec4(1.0) in the fragment shader main function 
+
+(you should now see a white circle, if you don't it's time to debug)
  
-Task: Use your normal input variable’s x, y and z components to represent r, g, and b components of your output FragColor. As a hint, the following pattern is allowed in glsl: 
-```
-	vec4(vec3(1.0), 1.0)
-```
+> Task: Use your normal input variable’s x, y and z components to represent r, g, and b components of your output FragColor. 
+
+As a hint, the following pattern is allowed in glsl: `varVec4 = vec4(varVec3, 1.0)`
  
 ##  5.0 Phong Lighting
 
@@ -206,7 +215,7 @@ Alright now that we have gone over the basics of Vertex and Fragment shaders let
 <img src="readmeImages/diffuse.png"    style="width: 40%;">
 </p>
 
-Diffuse Contribution = Kd(n ⋅ L)
+Diffuse Contribution = $K_d(n ⋅ L)$
 - $K_d$: Diffuse Coefficient
 - $n$: Surface Normal
 - $L$: Vector to Light
@@ -215,7 +224,7 @@ Diffuse Contribution = Kd(n ⋅ L)
  
 > Task: Calculate the light direction vector by subtracting the camera space fragment position from camera space light position
  
-> Task: Calculate the diffuse intensity as a float by using the dot(vec1, vec2) function in GLSL. Make sure to normalize the light and normal vectors before performing this operation!
+> Task: Calculate the diffuse intensity as a float by using the [dot](https://registry.khronos.org/OpenGL-Refpages/gl4/html/dot.xhtml) function in GLSL. Make sure to [normalize](https://registry.khronos.org/OpenGL-Refpages/gl4/html/normalize.xhtml) the light and normal vectors before performing this operation!
  
 > Task: Integrate the diffuse intensity into your fragment color by calculating a total intensity value given by: ambient + diffuse and multiply this by your object color.
  
@@ -226,22 +235,16 @@ Diffuse Contribution = Kd(n ⋅ L)
 </p>
 
 
-Specular Contribution = Ks(R ⋅ E)N
+Specular Contribution = $K_s(R ⋅ E)^N$
 - $K_s$: Specular Coefficient
 - $R$: Reflected Light Vector
 - $E$: Vector to Camera
 - $N$: Specular Exponent
  
- <details> <summary> Reflect function in GLSL: </summary>=
-*reflect(i, n)*
-
-The variable i is the incident vector to be reflected, think about how its direction differs from our current light vector. The variable n is the normal to be reflected across which we used in the diffuse section!
-</details>
- 
-> Task: Calculate the reflected light vector R in the fragment shader. 
+> Task: Calculate the reflected light vector R in the fragment shader using [reflect](https://registry.khronos.org/OpenGL-Refpages/gl4/html/reflect.xhtml). 
 
 > Task: Calculate the camera vector E by using the fragment position in camera space. Hint: what is the camera’s position in camera space?
 
-> Task: Calculate the specular intensity using dot(vec1, vec2) and our two vectors we calculated as well as the GLSL exponential function pow. Feel free to select your own value for the specular exponent.
+> Task: Calculate the specular intensity using [dot](https://registry.khronos.org/OpenGL-Refpages/gl4/html/dot.xhtml) and our two vectors we calculated as well as the GLSL exponential function [pow](https://registry.khronos.org/OpenGL-Refpages/gl4/html/pow.xhtml). Feel free to select your own value for the specular exponent.
 
-phong_color = object_color*(Ka + Kd * (n·L) + Ks(R ⋅ E)N)
+$phong color = object color*(K_a + K_d * (n·L) + K_s(R ⋅ E)^N)$

@@ -3,15 +3,15 @@
 #include <QCoreApplication>
 #include "CS1230Lib/resourceloader.h"
 #include "glm.hpp"
+#include <QMouseEvent>
 #include "glm/gtc/constants.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtx/transform.hpp"
 
 GLRenderer::GLRenderer(QWidget *parent)
-    : QOpenGLWidget(parent)
+    : QOpenGLWidget(parent), m_angleX(6), m_angleY(0), m_zoom(2)
 {
-    m_model = glm::mat4(1);
-    m_view = glm::lookAt(glm::vec3(10,0,2),glm::vec3(0,0,0),glm::vec3(0,0,1));
-    m_proj = glm::perspective(45.0,1.0 * width() / height(),0.01,100.0);
+    rebuildMatrices();
 }
 
 GLRenderer::~GLRenderer()
@@ -116,7 +116,7 @@ void GLRenderer::paintGL()
     auto viewLoc  = glGetUniformLocation(m_shader, "viewMatrix");
     auto projLoc  = glGetUniformLocation(m_shader, "projMatrix");
     //TASK
-    glUniform4f(glGetUniformLocation(m_shader, "light.position"),10,10,10,1);
+    glUniform4f(glGetUniformLocation(m_shader, "light.position"),10,0,0,1);
     glUniform3f(glGetUniformLocation(m_shader, "light.color"),1,1,1);
 
     //TASK
@@ -133,5 +133,47 @@ void GLRenderer::paintGL()
 
 void GLRenderer::resizeGL(int w, int h)
 {
+    m_proj = glm::perspective(45.0,1.0 * w / h,0.01,100.0);
+}
 
+//---------------------------------------//
+// Camera Movement, Don't worry about it //
+//---------------------------------------//
+
+void GLRenderer::mousePressEvent(QMouseEvent *event) {
+    // Set initial mouse position
+    m_prevMousePos = event->pos();
+}
+
+void GLRenderer::mouseMoveEvent(QMouseEvent *event) {
+    // update angle member variables based on event parameters
+    m_angleX += 10 * (event->position().x() - m_prevMousePos.x()) / (float) width();
+    m_angleY += 10 * (event->position().y() - m_prevMousePos.y()) / (float) height();
+    m_prevMousePos = event->pos();
+    rebuildMatrices();
+}
+
+void GLRenderer::wheelEvent(QWheelEvent *event) {
+    // update zoom based on event parameter
+    m_zoom -= event->angleDelta().y() / 100.f;
+    rebuildMatrices();
+}
+
+void GLRenderer::rebuildMatrices() {
+    // update view matrix by rotating eye vector based on x and y angles
+    m_view = glm::mat4(1);
+    glm::mat4 rot = glm::rotate(-10 * m_angleX,glm::vec3(0,0,1));
+    glm::vec3 eye = glm::vec3(2,0,0);
+    eye = glm::vec3(rot * glm::vec4(eye,1));
+
+    rot = glm::rotate(-10 * m_angleY,glm::cross(glm::vec3(0,0,1),eye));
+    eye = glm::vec3(rot * glm::vec4(eye,1));
+
+    eye = eye * m_zoom;
+
+    m_view = glm::lookAt(eye,glm::vec3(0,0,0),glm::vec3(0,0,1));
+
+    m_proj = glm::perspective(45.0,1.0 * width() / height(),0.01,100.0);
+
+    update();
 }

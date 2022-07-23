@@ -33,6 +33,9 @@ private:
     glm::mat4 m_view;
     glm::mat4 m_proj;
 
+    float m_ka;
+    float m_kd;
+    float m_ks;
 
     QPoint m_prevMousePos;
     float m_angleX;

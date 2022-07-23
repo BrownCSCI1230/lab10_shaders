@@ -9,7 +9,7 @@
 #include "glm/gtx/transform.hpp"
 
 GLRenderer::GLRenderer(QWidget *parent)
-    : QOpenGLWidget(parent), m_angleX(6), m_angleY(0), m_zoom(2)
+    : QOpenGLWidget(parent), m_ka(0.1), m_kd(0.8), m_ks(1), m_angleX(6), m_angleY(0), m_zoom(2)
 {
     rebuildMatrices();
 }
@@ -111,23 +111,32 @@ void GLRenderer::paintGL()
     glBindVertexArray(m_sphere_vao);
 
 
-    //TASK
+    //TASK X: get uniform location of Model View Projection matricies
     auto modelLoc = glGetUniformLocation(m_shader, "modelMatrix");
     auto viewLoc  = glGetUniformLocation(m_shader, "viewMatrix");
     auto projLoc  = glGetUniformLocation(m_shader, "projMatrix");
-    //TASK
-    glUniform4f(glGetUniformLocation(m_shader, "light.position"),10,0,0,1);
-    glUniform3f(glGetUniformLocation(m_shader, "light.color"),1,1,1);
 
-    //TASK
+    //TASK X: set uniform values of MVP matricies
     glUniformMatrix4fv(modelLoc,1,GL_FALSE,&m_model[0][0]);
     glUniformMatrix4fv(viewLoc,1,GL_FALSE,&m_view[0][0]);
     glUniformMatrix4fv(projLoc,1,GL_FALSE,&m_proj[0][0]);
 
+    //TASK X: get and set light position and color using uniforms
+    glUniform4f(glGetUniformLocation(m_shader, "light.position"),10,0,0,1);
+    glUniform3f(glGetUniformLocation(m_shader, "light.color"),1,1,1);
+
+    glUniform1f(glGetUniformLocation(m_shader, "ka"),m_ka);
+    glUniform1f(glGetUniformLocation(m_shader, "kd"),m_kd);
+    glUniform1f(glGetUniformLocation(m_shader, "ks"),m_ks);
+
+
+    //Draw Command
     glDrawArrays(GL_TRIANGLES, 0, m_sphereData.size() / 3);
+
+    //Unbind Vertex Array
     glBindVertexArray(0);
 
-    //TASK
+    //TASK X: un-use shader program
     glUseProgram(0);
 }
 

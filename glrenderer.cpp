@@ -9,7 +9,10 @@
 #include "glm/gtx/transform.hpp"
 
 GLRenderer::GLRenderer(QWidget *parent)
-    : QOpenGLWidget(parent), m_ka(0.1), m_kd(0.8), m_ks(1), m_angleX(6), m_angleY(0), m_zoom(2)
+    : QOpenGLWidget(parent),
+      m_ka(0.1), m_kd(0.8), m_ks(1),
+      m_angleX(6), m_angleY(0), m_zoom(2),
+      m_lightPos(glm::vec4(10,0,0,1))
 {
     rebuildMatrices();
 }
@@ -71,31 +74,31 @@ void GLRenderer::initializeGL()
     fmt.setVersion(3, 1);
     QOpenGLContext::currentContext()->setFormat(fmt);
     initializeOpenGLFunctions();
-
     // Set Clear Color to black
     glClearColor(0,0,0,1);
-
     // Enable Depth Testing
     glEnable(GL_DEPTH_TEST);
 
 
-    //TASK
-    m_shader = ResourceLoader::createShaderProgram("Resources/Shaders/default.vert", "Resources/Shaders/default.frag"); //Shader setup (DO NOT EDIT)
+    // TASK 1: call createShaderProgram and store return value in m_programID
 
 
-    //vao vbo
+    //Generate and Bind VBO
     glGenBuffers(1, &m_sphere_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, m_sphere_vbo);
-
+    //Generate Sphere data
     m_sphereData = generateSphereData(10,20);
-
+    //Send Data to VBO
     glBufferData(GL_ARRAY_BUFFER,m_sphereData.size() * sizeof(GLfloat),m_sphereData.data(), GL_STATIC_DRAW);
-
+    //Generate, and bind vao
     glGenVertexArrays(1, &m_sphere_vao);
     glBindVertexArray(m_sphere_vao);
+
+    //Enable and Define Attribute 0 to store Position information
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3 * sizeof(GLfloat),reinterpret_cast<void *>(0));
 
+    //Clean-up bindings
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER,0);
 }
@@ -104,40 +107,28 @@ void GLRenderer::paintGL()
 {
     // Clear screen color and depth before painting
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // TASK
-    glUseProgram(m_shader);
-
+    // Bind Sphere Vertex Data
     glBindVertexArray(m_sphere_vao);
 
+    // TASK 2: activate the shader program by calling glUseProgram with m_programID
 
-    //TASK X: get uniform location of Model View Projection matricies
-    auto modelLoc = glGetUniformLocation(m_shader, "modelMatrix");
-    auto viewLoc  = glGetUniformLocation(m_shader, "viewMatrix");
-    auto projLoc  = glGetUniformLocation(m_shader, "projMatrix");
+    // TASK 6: pass in m_model as a uniform into the shader progam
 
-    //TASK X: set uniform values of MVP matricies
-    glUniformMatrix4fv(modelLoc,1,GL_FALSE,&m_model[0][0]);
-    glUniformMatrix4fv(viewLoc,1,GL_FALSE,&m_view[0][0]);
-    glUniformMatrix4fv(projLoc,1,GL_FALSE,&m_proj[0][0]);
+    // TASK 6: pass in m_view and m_proj
 
-    //TASK X: get and set light position and color using uniforms
-    glUniform4f(glGetUniformLocation(m_shader, "light.position"),10,0,0,1);
-    glUniform3f(glGetUniformLocation(m_shader, "light.color"),1,1,1);
+    // TASK 13: pass m_ka into the fragment shader as a uniform
 
-    glUniform1f(glGetUniformLocation(m_shader, "ka"),m_ka);
-    glUniform1f(glGetUniformLocation(m_shader, "kd"),m_kd);
-    glUniform1f(glGetUniformLocation(m_shader, "ks"),m_ks);
+    // TASK 16: pass m_lightpos into the fragment shader
+
 
 
     //Draw Command
     glDrawArrays(GL_TRIANGLES, 0, m_sphereData.size() / 3);
-
     //Unbind Vertex Array
     glBindVertexArray(0);
 
-    //TASK X: un-use shader program
-    glUseProgram(0);
+    // TASK 3: deactivate the shader program by passing 0 into glUseProgram
+
 }
 
 void GLRenderer::resizeGL(int w, int h)

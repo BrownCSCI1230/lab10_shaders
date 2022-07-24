@@ -1,35 +1,33 @@
 #version 330 core
 
-in vec4 world_pos;
-in vec4 world_normal;
-in vec4 camera_pos;
-out vec4 fragColor;
+//TASK 5: declare in variable for position and normal to recieve from vertex shader
 
-struct Light {
-    vec4 position;
-};
+//TASK 10: declare a vec4 out named fragColor
 
-uniform Light light;
+//TASK 12: declare a uniform to store the ambient coeffient
 
-uniform float ka;
-uniform float kd;
-uniform float ks;
+//TASK 15: declare a uniform to store the light position
+
 
 void main() {
+    //TASK 10: set fragColor to vec4(1.0) and make sure you can see the white circle.
 
+    //TASK 11: set fragColor to have color components from the normal vector to make sure the normals are transformed correctly.
+    //         once you verify that the normals are correct set the frag color to black to prep for the next part of the lab
 
-   vec3 toCamera = normalize(vec3(camera_pos) - vec3(world_pos));
-   vec3 toLight = normalize(vec3(light.position - world_pos));
+    //TASK 14: add a vec3 with components given by the ambient coefficient to the output color
 
-   float diffuse  = clamp(dot(normalize(vec3(world_normal)),
-                              toLight),
-                          0,
-                          1);
+    //TASK 17: calculate the direction vector to the light
 
-   vec3 reflectedLight = reflect(-toLight,
-                                 normalize(vec3(world_normal)));
+    //TASK 18: using kd, the normal, and the direction vector to the light, compute the diffuse intensity
 
-   float specular = pow(clamp(dot(toCamera, reflectedLight),0,100), 30);
+    //TASK 19: add the diffuse intensity to the final color
 
-   fragColor = vec4(vec3(kd * diffuse + ka + ks * specular),1);
+    //TASK 20: compute the light vector reflected about the surface normal
+
+    //TASK 21: compute the direction vector to the camera
+
+    //TASK 22: using ks, the reflected light vector, and the camera direction vector, compute the specular intensity
+
+    //TASK 23: add the specular intensity to the final color
 }

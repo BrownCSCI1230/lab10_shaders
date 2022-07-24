@@ -37,6 +37,8 @@ private:
     float m_kd;
     float m_ks;
 
+    glm::vec4 m_lightPos;
+
     QPoint m_prevMousePos;
     float m_angleX;
     float m_angleY;
